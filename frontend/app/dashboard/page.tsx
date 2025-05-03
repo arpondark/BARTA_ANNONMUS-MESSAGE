@@ -202,30 +202,44 @@ export default function Dashboard() {
           messages.map((message) => (
             <div
               key={message._id}
-              className={`flex flex-col items-center justify-center card dark:bg-dark-card dark:border dark:border-dark-border ${!message.read ? 'border-l-4 border-l-primary' : ''}`}
+              className={`card dark:bg-dark-card dark:border dark:border-dark-border p-6 ${!message.read ? 'border-l-4 border-l-primary' : ''}`}
             >
-              <div className="relative mb-2">
-                <MessageCard
-                  message={message.content}
-                  templateId={message.cardTemplate || selectedTemplate}
-                  className="mb-2"
-                  style={{
-                    width: '350px',
-                    height: '180px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.2rem',
-                    fontWeight: 500,
-                  }}
-                />
-                <div className="absolute top-2 right-2">
+              <div className="flex flex-col md:flex-row md:items-center">
+                {/* Message content */}
+                <div className="relative w-full md:w-3/4" style={{ 
+                  aspectRatio: '16/9',
+                  maxWidth: '100%'
+                }}>
+                  <div className="absolute inset-0">
+                    <MessageCard
+                      message={message.content}
+                      templateId={message.cardTemplate || selectedTemplate}
+                      className="w-full h-full"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.2rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Message details and actions */}
+                <div className="md:w-1/4 md:pl-4 mt-4 md:mt-0 flex flex-col justify-between">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {new Date(message.createdAt).toLocaleString()}
+                  </p>
+                  
                   <MessageExport message={message} templateId={message.cardTemplate || selectedTemplate} />
                 </div>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {new Date(message.createdAt).toLocaleString()}
-              </p>
             </div>
           ))
         )}

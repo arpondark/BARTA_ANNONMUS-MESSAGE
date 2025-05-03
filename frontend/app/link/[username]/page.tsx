@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { MessageCard } from '../../../components/CardTemplates';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function MessageLink() {
   const [message, setMessage] = useState('');
@@ -11,7 +12,10 @@ export default function MessageLink() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const params = useParams();
+  const searchParams = useSearchParams();
   const username = params.username as string;
+  const templateId = searchParams.get('template') || 'gradient1';
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,19 +25,20 @@ export default function MessageLink() {
     try {
       await axios.post('http://localhost:5000/api/messages', {
         username,
-        content: message
+        content: message,
+        cardTemplate: templateId
       });
       setSubmitted(true);
       setMessage('');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+      setError(err.response?.data?.message || t('failedToSendMessage') || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-2xl mx-auto px-4 py-8">
       <div
         className="rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center mb-8"
         style={{
@@ -46,75 +51,82 @@ export default function MessageLink() {
       >
         {submitted ? (
           <div className="text-center py-8">
-            <h2 className="text-2xl font-bold text-primary mb-4">Message Sent!</h2>
-            <p className="mb-6 dark:text-dark-text">Your anonymous message has been delivered.</p>
+            <h2 className="text-2xl font-bold text-primary mb-4">{t('messageSent') || 'Message Sent!'}</h2>
+            <p className="mb-6 dark:text-dark-text">{t('messageDelivered') || 'Your anonymous message has been delivered.'}</p>
             <button 
               onClick={() => setSubmitted(false)} 
               className="btn-primary"
             >
-              Send Another
+              {t('sendAnother') || 'Send Another'}
             </button>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold mb-2 text-center dark:text-dark-text">Send Anonymous Message</h2>
+            <h2 className="text-2xl font-bold mb-2 text-center dark:text-dark-text">{t('sendAnonymousMessage') || 'Send Anonymous Message'}</h2>
             <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-              to <span className="font-semibold">{username}</span>
+              {t('to') || 'to'} <span className="font-semibold">{username}</span>
             </p>
             {error && (
-              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
+              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4 w-full">
                 {error}
               </div>
             )}
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4 relative flex flex-col items-center">
-                <MessageCard
-                  message={message || 'Type your anonymous message here...'}
-                  templateId={'gradient1'}
-                  publicView={true}
-                  className="w-full"
-                  style={{
-                    width: '350px',
-                    height: '180px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.2rem',
-                    fontWeight: 500,
-                    padding: 0,
-                  }}
-                />
-                <textarea
-                  className="absolute top-0 left-0 w-full h-full p-6 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-transparent text-gray-800 text-lg font-semibold placeholder-gray-400 resize-none"
-                  style={{
-                    fontFamily: 'inherit',
-                    background: 'transparent',
-                    color: 'transparent',
-                    caretColor: '#6366f1',
-                    fontWeight: 600,
-                    fontSize: '1.2rem',
-                    width: '350px',
-                    height: '180px',
-                    zIndex: 2,
-                  }}
-                  placeholder="Type your anonymous message here..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  required
-                  maxLength={500}
-                  spellCheck={false}
-                  autoFocus
-                />
-                <div className="absolute bottom-2 right-4 text-xs text-gray-500 z-10">
-                  {message.length}/500
+            <form onSubmit={handleSubmit} className="w-full">
+              <div className="w-full flex justify-center mb-6">
+                {/* Card container with consistent size */}
+                <div className="relative w-full" style={{ 
+                  maxWidth: '540px',
+                  aspectRatio: '16/9'
+                }}>
+                  {/* MessageCard as visual background */}
+                  <div className="absolute inset-0">
+                    <MessageCard
+                      message={message || t('typeYourMessage') || 'Type your anonymous message here...'}
+                      templateId={templateId}
+                      publicView={true}
+                      className="w-full h-full"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Textarea overlay */}
+                  <textarea
+                    className="absolute inset-0 w-full h-full p-6 border-none focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-transparent text-transparent placeholder-transparent resize-none"
+                    style={{
+                      caretColor: '#6366f1',
+                      zIndex: 2,
+                    }}
+                    placeholder={t('typeYourMessage') || 'Type your anonymous message here...'}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    maxLength={500}
+                    spellCheck={false}
+                    autoFocus
+                  />
+                  
+                  {/* Character counter */}
+                  <div className="absolute bottom-2 right-4 text-xs text-gray-200 z-10" style={{textShadow:'0 2px 8px rgba(0,0,0,0.18)'}}>
+                    {message.length}/500
+                  </div>
                 </div>
               </div>
+              
               <button
                 type="submit"
-                className="btn-primary w-full"
+                className="btn-primary max-w-xs w-full mx-auto block"
                 disabled={loading || message.trim() === ''}
               >
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? (t('sending') || 'Sending...') : (t('sendMessage') || 'Send Message')}
               </button>
             </form>
           </>
@@ -122,9 +134,9 @@ export default function MessageLink() {
       </div>
       <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
         <p>
-          This message will be sent anonymously.
+          {t('anonymousNote') || 'This message will be sent anonymously.'}
           <br />
-          {username} will not know who sent it.
+          {username} {t('willNotKnow') || 'will not know who sent it.'}
         </p>
       </div>
     </div>
