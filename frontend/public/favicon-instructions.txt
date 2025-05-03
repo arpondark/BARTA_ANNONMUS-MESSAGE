@@ -1,0 +1,15 @@
+To generate a PNG favicon from the SVG:
+
+1. Open the SVG file in a browser
+2. Take a screenshot, capturing the entire SVG image
+3. Crop the screenshot to the dimensions of the SVG (64x64 pixels)
+4. Save as favicon.png in the public directory
+
+Alternatively, you can use a conversion tool:
+
+1. Use an online SVG to PNG converter like https://svgtopng.com/
+2. Upload favicon.svg
+3. Download the PNG version
+4. Save it as favicon.png in the public directory
+
+The favicon should feature the Bengali characters "বা" (ba) in white on a purple-to-pink gradient background. 
