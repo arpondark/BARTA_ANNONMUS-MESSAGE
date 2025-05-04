@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useSearchParams } from 'next/navigation';
-import { MessageCard } from '../../../components/CardTemplates';
+import { MessageCard, cardTemplates } from '../../../components/CardTemplates';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function MessageLink() {
@@ -14,8 +14,9 @@ export default function MessageLink() {
   const params = useParams();
   const searchParams = useSearchParams();
   const username = params.username as string;
-  const templateId = searchParams.get('template') || 'gradient-purple';
-  const { t } = useLanguage();
+  const urlTemplateId = searchParams.get('template') || 'default';
+  const [selectedTemplate, setSelectedTemplate] = useState(urlTemplateId);
+  const { t, language } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +27,7 @@ export default function MessageLink() {
       await axios.post('http://localhost:5000/api/messages', {
         username,
         content: message,
-        cardTemplate: templateId
+        cardTemplate: selectedTemplate
       });
       setSubmitted(true);
       setMessage('');
@@ -80,8 +81,8 @@ export default function MessageLink() {
                   {/* MessageCard as visual background */}
                   <div className="absolute inset-0">
                     <MessageCard
-                      message={message || t('typeYourMessage') || 'Type your anonymous message here...'}
-                      templateId={templateId}
+                      message={message || (language === 'bn' ? 'আপনার বার্তা লিখুন..........' : 'Type your anonymous message here...')}
+                      templateId={selectedTemplate}
                       publicView={true}
                       className="w-full h-full"
                       style={{
@@ -104,7 +105,7 @@ export default function MessageLink() {
                       caretColor: '#6366f1',
                       zIndex: 2,
                     }}
-                    placeholder={t('typeYourMessage') || 'Type your anonymous message here...'}
+                    placeholder={language === 'bn' ? 'আপনার বার্তা লিখুন..........' : 'Type your anonymous message here...'}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     required
@@ -119,6 +120,8 @@ export default function MessageLink() {
                   </div>
                 </div>
               </div>
+
+              {/* Card Template Selection removed as per requirement */}
 
               <button
                 type="submit"

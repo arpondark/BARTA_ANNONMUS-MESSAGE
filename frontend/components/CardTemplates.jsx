@@ -47,7 +47,7 @@ const getBackground = (id) => {
       return 'url(https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
     case 'gradient5':
       return 'url(https://images.unsplash.com/photo-1557682257-2f9c37a3a5f3?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
-    
+
     // Nature & Organic Textures
     case 'pattern1':
       return 'url(https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
@@ -59,7 +59,7 @@ const getBackground = (id) => {
       return 'url(https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
     case 'pattern5':
       return 'url(https://images.unsplash.com/photo-1541140134513-85a161dc4a00?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
-    
+
     // Artistic & Abstract Designs
     case 'special1':
       return 'url(https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
@@ -71,7 +71,7 @@ const getBackground = (id) => {
       return 'url(https://images.unsplash.com/photo-1564951434112-64d74cc2a2d7?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
     case 'special5':
       return 'url(https://images.unsplash.com/photo-1553356084-58ef4a67b2a7?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
-    
+
     // Premium Aesthetic Designs
     case 'premium1':
       return 'url(https://images.unsplash.com/photo-1544144433-d50aff500b91?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
@@ -83,7 +83,7 @@ const getBackground = (id) => {
       return 'url(https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
     case 'premium5':
       return 'url(https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
-    
+
     // Default elegant background
     default:
       return 'url(https://images.unsplash.com/photo-1554147090-e1221a04a025?auto=format&fit=crop&w=800&q=80) center/cover no-repeat';
@@ -129,7 +129,7 @@ export function MessageCard({ message, templateId = 'default', className = '', p
   const overlay = getOverlay(templateId);
   const textColor = getTextColor(templateId);
   const textShadow = getTextShadow(templateId);
-  
+
   return (
     <div
       className={`relative rounded-2xl shadow-xl flex items-center justify-center text-center overflow-hidden ${className}`}
@@ -145,7 +145,7 @@ export function MessageCard({ message, templateId = 'default', className = '', p
         className="absolute inset-0" 
         style={{ background: overlay }}
       ></div>
-      
+
       {/* Message content */}
       <div className="relative z-10 px-8 py-6 w-full">
         <p 
@@ -160,7 +160,7 @@ export function MessageCard({ message, templateId = 'default', className = '', p
         >
           {message}
         </p>
-        
+
         {/* Brand watermark */}
         <div 
           className="absolute bottom-2 right-3 text-xs opacity-60"
@@ -197,6 +197,9 @@ export const templateOptions = [
   { id: 'premium4', name: 'Cosmic Gradient' },
   { id: 'premium5', name: 'Neon Flow' },
 ];
+
+// Export the same array as cardTemplates for compatibility with other components
+export const cardTemplates = templateOptions;
 
 export function getCardTemplate(id) {
   return templateOptions.find(template => template.id === id) || templateOptions[0];

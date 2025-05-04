@@ -16,28 +16,7 @@ interface Message {
   cardTemplate?: string;
 }
 
-const templateOptions = [
-  { id: 'default', name: 'Default' },
-  { id: 'gradient-purple', name: 'Purple Gradient' },
-  { id: 'gradient-blue', name: 'Blue Ocean' },
-  { id: 'sunshine', name: 'Sunshine' },
-  { id: 'dark-elegance', name: 'Dark Elegance' },
-  { id: 'nature', name: 'Nature' },
-  { id: 'pastel-pink', name: 'Pastel Pink' },
-  { id: 'vibrant-coral', name: 'Vibrant Coral' },
-  { id: 'midnight-blue', name: 'Midnight Blue' },
-  { id: 'minimalist', name: 'Minimalist' },
-  { id: 'sunset', name: 'Sunset' },
-  { id: 'neon', name: 'Neon' },
-  { id: 'sky', name: 'Sky' },
-  { id: 'vintage', name: 'Vintage' },
-  { id: 'galaxy', name: 'Galaxy' },
-  { id: 'forest', name: 'Forest' },
-  { id: 'beach', name: 'Beach' },
-  { id: 'fire', name: 'Fire' },
-  { id: 'ice', name: 'Ice' },
-  { id: 'dark-mode', name: 'Dark Mode' },
-];
+// Using cardTemplates imported from CardTemplates.jsx
 
 export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -76,9 +55,11 @@ export default function Dashboard() {
     Cookies.set('token', token);
     Cookies.set('username', username);
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
     const fetchMessages = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/messages', {
+        const response = await axios.get(`${apiUrl}/messages`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -123,7 +104,7 @@ export default function Dashboard() {
           .filter((msg: Message) => !msg.read)
           .map((msg: Message) => msg._id);
         if (unreadMessageIds.length > 0) {
-          await axios.post('http://localhost:5000/api/messages/mark-read', 
+          await axios.post(`${apiUrl}/messages/mark-read`, 
             { messageIds: unreadMessageIds },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -165,7 +146,8 @@ export default function Dashboard() {
     if (window.confirm('Are you sure you want to delete this message?')) {
       try {
         const token = localStorage.getItem('token') || Cookies.get('token');
-        const response = await axios.delete(`http://localhost:5000/api/messages/${messageId}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const response = await axios.delete(`${apiUrl}/messages/${messageId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -195,7 +177,8 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem('token') || Cookies.get('token');
       const username = localStorage.getItem('username') || Cookies.get('username');
-      const response = await axios.post('http://localhost:5000/api/messages', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await axios.post(`${apiUrl}/messages`, {
         recipient: username,
         content: message,
         cardTemplate: selectedTemplate,
@@ -230,16 +213,16 @@ export default function Dashboard() {
 
       {/* What's New Section */}
       {showWhatsNew && (
-        <div className="mb-8 p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg text-white relative animate-fade-in">
+        <div className="mb-6 p-4 sm:p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg text-white relative animate-fade-in">
           <button
             onClick={() => setShowWhatsNew(false)}
-            className="absolute top-3 right-3 text-white text-xl hover:text-gray-200 focus:outline-none"
+            className="absolute top-2 right-2 sm:top-3 sm:right-3 text-white text-xl hover:text-gray-200 focus:outline-none"
             aria-label="Dismiss What's New"
           >
             &times;
           </button>
-          <h2 className="text-2xl font-bold mb-2">🚀 What's New</h2>
-          <ul className="list-disc pl-6 space-y-1 text-lg">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">🚀 What's New</h2>
+          <ul className="list-disc pl-4 sm:pl-6 space-y-0.5 sm:space-y-1 text-base sm:text-lg">
             <li><b>Real-time Notifications:</b> Get instant notifications with sound when you receive new messages!</li>
             <li><b>20+ Stylish Card Templates:</b> Choose from a variety of beautiful card designs for your messages.</li>
             <li><b>Card Preview & Selection:</b> Instantly preview and select your favorite card style before sending or saving.</li>
@@ -253,12 +236,12 @@ export default function Dashboard() {
       {/* Card Template Selection for Sending */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Card Style</label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 dashboard-grid">
           {cardTemplates.map((template) => (
             <button
               key={template.id}
               onClick={() => setSelectedTemplate(template.id)}
-              className={`p-2 rounded-lg border-2 transition-all ${
+              className={`p-2 rounded-lg border-2 transition-all dashboard-card ${
                 selectedTemplate === template.id
                   ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600'
@@ -278,40 +261,41 @@ export default function Dashboard() {
       </div>
 
       {/* Link with selected template - Moved here after template selector */}
-      <div className="card dark:bg-dark-card dark:border dark:border-dark-border mb-8">
-        <h3 className="text-xl font-semibold mb-4 dark:text-dark-text">Your Anonymous Link</h3>
-        <div className="flex">
+      <div className="card dark:bg-dark-card dark:border dark:border-dark-border mb-6 sm:mb-8 p-4 sm:p-5 rounded-lg">
+        <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 dark:text-dark-text">Your Anonymous Link</h3>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
           <input
             type="text"
             value={`${window.location.origin}/link/${localStorage.getItem('username') || Cookies.get('username')}?template=${selectedTemplate}`}
-            className="input flex-grow dark:bg-dark-bg dark:border-dark-border dark:text-dark-text"
+            className="input flex-grow dark:bg-dark-bg dark:border-dark-border dark:text-dark-text text-sm sm:text-base py-2 px-3 rounded-md w-full"
             readOnly
           />
           <button
             onClick={handleCopyLink}
-            className="btn-primary ml-2"
+            className="btn-primary sm:ml-2 py-2 px-4 rounded-md touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {linkCopied ? 'Copied!' : 'Copy'}
           </button>
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
           Share this link with your friends to receive anonymous messages with your selected card style.
         </p>
       </div>
 
       {/* Message inbox section */}
-      <div className="my-8">
-        <h2 className="text-2xl font-semibold mb-6 dark:text-dark-heading">Your Inbox</h2>
+      <div className="my-6 sm:my-8">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 dark:text-dark-heading">Your Inbox</h2>
 
         {messages.length === 0 ? (
-          <div className="text-center p-8 bg-white dark:bg-dark-card rounded-xl shadow-md">
+          <div className="text-center p-4 sm:p-8 bg-white dark:bg-dark-card rounded-xl shadow-md">
             <p className="text-gray-600 dark:text-gray-400">No messages yet. Share your link to receive anonymous messages!</p>
           </div>
         ) : (
-          <div className="grid gap-6">
+          <div className="grid gap-4 sm:gap-6">
             {messages.map((msg) => (
-              <div key={msg._id} className="bg-white dark:bg-dark-card p-6 rounded-xl shadow-md">
-                <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <div key={msg._id} className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-xl shadow-md dashboard-card">
+                <div className="mb-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   {new Date(msg.createdAt).toLocaleString()}
                 </div>
 
@@ -319,23 +303,22 @@ export default function Dashboard() {
                 <MessageCard 
                   message={msg.content}
                   templateId={msg.cardTemplate || 'default'}
-                  className="w-full mb-4"
+                  className="w-full mb-3 sm:mb-4"
                 />
 
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-between items-center gap-2">
+                  <button
+                    onClick={() => handleDeleteMessage(msg._id)}
+                    className="text-red-500 hover:text-red-700 py-1 px-2 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    Delete
+                  </button>
+
                   <MessageExport
                     message={msg}
                     templateId={msg.cardTemplate || 'default'}
                   />
-                </div>
-
-                <div className="mt-2">
-                  <button
-                    onClick={() => handleDeleteMessage(msg._id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
                 </div>
               </div>
             ))}
@@ -345,20 +328,21 @@ export default function Dashboard() {
 
       {/* Message Popup */}
       {selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-dark-card rounded-lg p-6 max-w-3xl w-full relative">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white dark:bg-dark-card rounded-lg p-4 sm:p-6 max-w-3xl w-full relative dashboard-popup">
             <button 
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 touch-manipulation" 
               onClick={() => setSelectedMessage(null)}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">Message</h3>
+            <h3 className="text-lg font-semibold mb-3 sm:mb-4 dark:text-gray-200">Message</h3>
 
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <div className="relative" style={{ aspectRatio: '16/9' }}>
                 <MessageCard
                   message={selectedMessage.content}
@@ -388,18 +372,19 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex flex-wrap justify-end gap-2">
               <MessageExport 
                 message={selectedMessage} 
                 templateId={selectedMessage.cardTemplate || 'default'} 
               />
               <button 
                 onClick={() => handleDeleteMessage(selectedMessage._id)}
-                className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 Delete
               </button>
-              <span className="ml-2 text-xs text-gray-500 self-center">
+              <span className="w-full text-right text-xs text-gray-500 mt-1">
                 Using template: {selectedMessage.cardTemplate || 'default'}
               </span>
             </div>

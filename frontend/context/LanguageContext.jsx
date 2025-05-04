@@ -23,6 +23,9 @@ const translations = {
     markRead: 'Mark as Read',
     saveImage: 'Save as Image',
     delete: 'Delete',
+    typeYourMessage: 'Type your message...',
+    anonymousNote: 'বেনামী বার্তা',
+    willNotKnow: 'জানবে না কে দিছে',
 
     // Profile
     editProfile: 'Edit Profile',

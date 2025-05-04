@@ -13,9 +13,13 @@ const DeveloperProfile = () => {
         <div className="flex flex-col items-center">
           {/* Profile Image */}
           <div className="relative -mt-16 w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-dark-card bg-white">
-            <div className="absolute inset-0 flex items-center justify-center bg-indigo-100 text-indigo-600 text-4xl font-bold">
-              MA
-            </div>
+            <Image 
+              src="/devProfile.jpg" 
+              alt="Developer Profile"
+              width={128}
+              height={128}
+              className="object-cover w-full h-full"
+            />
           </div>
           
           {/* Developer Info */}

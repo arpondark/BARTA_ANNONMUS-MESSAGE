@@ -200,10 +200,12 @@ export function MessageCard({
 
 export function CardTemplateSelector({ 
   selectedTemplate, 
-  onSelect 
+  onSelect,
+  className = ''
 }: { 
   selectedTemplate: string; 
   onSelect: (id: string) => void;
+  className?: string;
 }) {
   const { t, language } = useLanguage();
   const [showCustomizer, setShowCustomizer] = useState(false);
@@ -222,7 +224,7 @@ export function CardTemplateSelector({
   return (
     <div>
       <h3 className="text-lg font-medium mb-3 dark:text-dark-text">{t('chooseCardStyle')}</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 ${className}`}>
         {/* Default templates */}
         {cardTemplates.map(template => (
           <div 

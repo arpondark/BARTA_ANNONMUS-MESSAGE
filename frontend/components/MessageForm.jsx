@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { getCardTemplate, MessageCard } from './CardTemplates';
+import { getCardTemplate, MessageCard, cardTemplates } from './CardTemplates';
 import Image from 'next/image';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -80,28 +80,7 @@ const MessageForm = ({ username }) => {
     }
   };
 
-  const templateOptions = [
-    { id: 'default', name: 'Default' },
-    { id: 'gradient-purple', name: 'Purple Gradient' },
-    { id: 'gradient-blue', name: 'Blue Ocean' },
-    { id: 'sunshine', name: 'Sunshine' },
-    { id: 'dark-elegance', name: 'Dark Elegance' },
-    { id: 'nature', name: 'Nature' },
-    { id: 'pastel-pink', name: 'Pastel Pink' },
-    { id: 'vibrant-coral', name: 'Vibrant Coral' },
-    { id: 'midnight-blue', name: 'Midnight Blue' },
-    { id: 'minimalist', name: 'Minimalist' },
-    { id: 'sunset', name: 'Sunset' },
-    { id: 'neon', name: 'Neon' },
-    { id: 'sky', name: 'Sky' },
-    { id: 'vintage', name: 'Vintage' },
-    { id: 'galaxy', name: 'Galaxy' },
-    { id: 'forest', name: 'Forest' },
-    { id: 'beach', name: 'Beach' },
-    { id: 'fire', name: 'Fire' },
-    { id: 'ice', name: 'Ice' },
-    { id: 'dark-mode', name: 'Dark Mode' },
-  ];
+  // Using cardTemplates imported from CardTemplates.jsx
 
   if (submitted) {
     return (
@@ -155,34 +134,7 @@ const MessageForm = ({ username }) => {
         </div>
       </div>
 
-      {/* Card Template Selection */}
-      <div className="mb-4">
-        <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${language === 'bn' ? 'font-bengali' : ''}`}>
-          {language === 'bn' ? 'কার্ড স্টাইল নির্বাচন করুন' : 'Select Card Style'}
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-          {templateOptions.map((template) => (
-            <button
-              key={template.id}
-              onClick={() => setSelectedTemplate(template.id)}
-              className={`p-2 rounded-lg border-2 transition-all ${
-                selectedTemplate === template.id
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600'
-              }`}
-            >
-              <MessageCard
-                message={language === 'bn' ? 'আপনার বার্তা' : 'Your message'}
-                templateId={template.id}
-                className="w-full h-20 flex items-center justify-center text-xs"
-              />
-              <span className="text-xs text-gray-600 dark:text-gray-400 mt-1 block text-center">
-                {template.name}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Card Template Selection removed as per requirement */}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">

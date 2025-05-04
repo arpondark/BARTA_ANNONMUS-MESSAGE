@@ -60,12 +60,29 @@ ngl-clone/
    npm install
    ```
 
-3. Start the frontend development server:
+3. Configure the API URL by creating a `.env.local` file:
+   ```
+   # Copy from the example file
+   cp .env.example .env.local
+   
+   # Edit the file to set your backend API URL
+   # Default is already set to http://localhost:5000/api
+   ```
+
+4. Start the frontend development server:
    ```
    npm run dev
    ```
 
-4. Open your browser and visit `http://localhost:3000`
+5. Open your browser and visit `http://localhost:3000`
+
+## Environment Configuration
+
+The frontend uses environment variables to configure various settings. You can customize these in your `.env.local` file:
+
+- `NEXT_PUBLIC_API_URL`: The URL of your backend API (default: http://localhost:5000/api)
+- `NEXT_PUBLIC_ENABLE_ANALYTICS`: Enable/disable analytics (default: false)
+- `NEXT_PUBLIC_DEBUG_MODE`: Enable/disable debug mode (default: false)
 
 ## Features
 
@@ -74,9 +91,10 @@ ngl-clone/
 - Share links on social media or directly with friends
 - Receive anonymous messages from anyone with the link
 - View all received messages in a dashboard
+- Delete unwanted messages
 
 ## Development Notes
 
 - The backend API runs on port 5000
 - The frontend development server runs on port 3000
-- The frontend makes API calls to `http://localhost:5000` 
+- The frontend makes API calls to the URL specified in NEXT_PUBLIC_API_URL (defaults to `http://localhost:5000/api`)
