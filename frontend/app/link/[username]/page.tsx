@@ -40,7 +40,7 @@ export default function MessageLink() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div
-        className="rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center mb-8"
+        className="rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center mb-8 dark:bg-dark-card"
         style={{
           background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
           border: '2.5px solid #a5b4fc',
@@ -52,7 +52,6 @@ export default function MessageLink() {
         {submitted ? (
           <div className="text-center py-8">
             <h2 className="text-2xl font-bold text-primary mb-4">{t('messageSent') || 'Message Sent!'}</h2>
-            <p className="mb-6 dark:text-dark-text">{t('messageDelivered') || 'Your anonymous message has been delivered.'}</p>
             <button 
               onClick={() => setSubmitted(false)} 
               className="btn-primary"
@@ -62,8 +61,8 @@ export default function MessageLink() {
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold mb-2 text-center dark:text-dark-text">{t('sendAnonymousMessage') || 'Send Anonymous Message'}</h2>
-            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+            <h2 className="text-2xl font-bold mb-2 text-center dark:text-gray-800">{t('sendAnonymousMessage') || 'Send Anonymous Message'}</h2>
+            <p className="text-center text-gray-600 dark:text-gray-800 mb-6">
               {t('to') || 'to'} <span className="font-semibold">{username}</span>
             </p>
             {error && (

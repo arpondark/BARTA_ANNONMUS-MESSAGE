@@ -209,22 +209,12 @@ export function CardTemplateSelector({
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [customTemplates, setCustomTemplates] = useState<CardTemplate[]>([]);
 
-  useEffect(() => {
-    // Load custom templates from localStorage
-    const savedTemplates = localStorage.getItem('customCardTemplates');
-    if (savedTemplates) {
-      try {
-        setCustomTemplates(JSON.parse(savedTemplates));
-      } catch (e) {
-        console.error('Failed to parse custom templates', e);
-      }
-    }
-  }, []);
+  // Custom templates are stored in memory only, not cached
 
   const handleAddCustomTemplate = (template: CardTemplate) => {
     const updatedTemplates = [...customTemplates, template];
     setCustomTemplates(updatedTemplates);
-    localStorage.setItem('customCardTemplates', JSON.stringify(updatedTemplates));
+    // No longer storing in localStorage, only in memory
     onSelect(template.id);
     setShowCustomizer(false);
   };

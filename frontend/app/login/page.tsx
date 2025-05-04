@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -12,16 +13,17 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const { isAuthenticated } = useAuth();
+
   useEffect(() => {
     // Check if user is already logged in
-    const token = localStorage.getItem('token') || Cookies.get('token');
-    const username = localStorage.getItem('username') || Cookies.get('username');
-
-    if (token && username) {
+    if (isAuthenticated) {
       // User is already logged in, redirect to dashboard
       router.push('/dashboard');
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
+
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +31,21 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { username });
-      // Store in both localStorage and cookies for better persistence
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', username);
-      Cookies.set('token', response.data.token);
-      Cookies.set('username', username);
-      router.push('/dashboard');
+      const result = await login(username);
+      if (result.success) {
+        // Also set cookies for better persistence
+        const token = localStorage.getItem('token');
+        if (token) {
+          Cookies.set('token', token);
+          Cookies.set('username', username);
+        }
+        router.push('/dashboard');
+      } else {
+        setError(result.message || 'Login failed. Please try again.');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }

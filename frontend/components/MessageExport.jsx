@@ -15,7 +15,7 @@ const MessageExport = ({ message, templateId }) => {
   const [aspect, setAspect] = useState(aspectRatios[0].value);
   const [showExportOptions, setShowExportOptions] = useState(false);
 
-  // Ensure we have a valid templateId
+  // Ensure we have a valid templateId - use the one from message if available and not overridden
   const effectiveTemplateId = templateId || (message && message.cardTemplate) || 'default';
 
   // Debug log to check template being used
@@ -80,7 +80,7 @@ const MessageExport = ({ message, templateId }) => {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          {t('saveImage') || 'Save Image'}
+          {t('exportAsImage') || 'Export as Image'}
         </button>
       ) : (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 p-4">
@@ -126,7 +126,7 @@ const MessageExport = ({ message, templateId }) => {
                 }}
               >
                 <MessageCard
-                  message={message.content}
+                  message={typeof message === 'object' ? message.content : message}
                   templateId={effectiveTemplateId}
                   className="w-full h-full"
                   style={{ 

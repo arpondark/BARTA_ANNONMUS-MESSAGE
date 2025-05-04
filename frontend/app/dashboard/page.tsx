@@ -198,62 +198,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Header with Notification Toggle and Logout Button */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-6xl mx-auto p-4">
+      {/* Dashboard Title */}
+      <div className="mb-6">
         <h1 className="text-2xl font-bold dark:text-dark-text">Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <button 
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
-              onClick={() => {
-                // Show a toast with unread messages count
-                const unreadCount = messages.filter(msg => !msg.read).length;
-                if (unreadCount > 0) {
-                  toast.success(`You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}!`);
-                } else {
-                  toast.success('No new messages');
-                }
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              {messages.filter(msg => !msg.read).length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {messages.filter(msg => !msg.read).length}
-                </span>
-              )}
-            </button>
-          </div>
-          <div className="flex items-center">
-            <label htmlFor="notification-toggle" className="mr-2 text-sm text-gray-700 dark:text-gray-300">
-              Notifications
-            </label>
-            <div className="relative inline-block w-10 mr-2 align-middle select-none">
-              <input
-                type="checkbox"
-                id="notification-toggle"
-                name="notification-toggle"
-                checked={notificationEnabled}
-                onChange={() => setNotificationEnabled(!notificationEnabled)}
-                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-              />
-              <label
-                htmlFor="notification-toggle"
-                className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${
-                  notificationEnabled ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-              ></label>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-          >
-            Logout
-          </button>
-        </div>
       </div>
 
       {/* What's New Section */}
@@ -327,67 +275,38 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Received Messages */}
-      <div className="space-y-8">
+      {/* Message inbox section */}
+      <div className="my-8">
+        <h2 className="text-2xl font-semibold mb-6 dark:text-dark-heading">Your Inbox</h2>
+
         {messages.length === 0 ? (
-          <div className="card dark:bg-dark-card dark:border dark:border-dark-border text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">No messages yet. Share your link to get some!</p>
+          <div className="text-center p-8 bg-white dark:bg-dark-card rounded-xl shadow-md">
+            <p className="text-gray-600 dark:text-gray-400">No messages yet. Share your link to receive anonymous messages!</p>
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message._id}
-              className={`card dark:bg-dark-card dark:border dark:border-dark-border p-6 ${!message.read ? 'border-l-4 border-l-primary' : ''} cursor-pointer hover:shadow-lg transition-shadow`}
-              onClick={() => setSelectedMessage(message)}
-            >
-              <div className="flex flex-col md:flex-row md:items-center">
-                {/* Message content - Condensed preview */}
-                <div className="relative w-full md:w-3/4" style={{ 
-                  aspectRatio: '16/9',
-                  maxWidth: '100%',
-                  maxHeight: '150px',
-                  overflow: 'hidden'
-                }}>
-                  <div className="absolute inset-0">
-                    <MessageCard
-                      message={message.content.length > 100 ? message.content.substring(0, 100) + '...' : message.content}
-                      templateId={message.cardTemplate || 'default'}
-                      className="w-full h-full"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.1rem',
-                        fontWeight: 500,
-                      }}
-                    />
-                  </div>
+          <div className="grid gap-6">
+            {messages.map((msg) => (
+              <div key={msg._id} className="bg-white dark:bg-dark-card p-6 rounded-xl shadow-md">
+                <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(msg.createdAt).toLocaleString()}
                 </div>
 
-                {/* Message details and actions */}
-                <div className="md:w-1/4 md:pl-4 mt-4 md:mt-0 flex flex-col justify-between">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {new Date(message.createdAt).toLocaleString()}
-                  </p>
+                {/* Use the message's cardTemplate if available, otherwise default */}
+                <MessageCard 
+                  message={msg.content}
+                  templateId={msg.cardTemplate || 'default'}
+                  className="w-full mb-4"
+                />
 
-                  <button 
-                    className="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedMessage(message);
-                    }}
-                  >
-                    View Full Message
-                  </button>
+                <div className="flex justify-end">
+                  <MessageExport
+                    message={msg}
+                    templateId={msg.cardTemplate || 'default'}
+                  />
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 

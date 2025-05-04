@@ -2,20 +2,32 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { LanguageProvider, useLanguage } from '../context/LanguageContext';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
+import Notification from './Notification';
 
 const NavBar = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const router = useRouter();
   const { t, language } = useLanguage();
+  const [pathname, setPathname] = React.useState('');
+  const [isMounted, setIsMounted] = React.useState(false);
+  const router = isMounted ? useRouter() : null;
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    setPathname(window.location.pathname);
+  }, []);
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    if (router) {
+      router.push('/login');
+    } else {
+      window.location.href = '/login';
+    }
   };
 
   return (
@@ -25,11 +37,11 @@ const NavBar = () => {
           <div className="flex items-center">
             <Logo size="medium" />
           </div>
-          
+
           <div className="flex items-center">
             <nav className="flex space-x-4 mr-4">
               <Link href="/" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                router.pathname === '/' 
+                pathname === '/' 
                   ? 'text-indigo-600 dark:text-indigo-400' 
                   : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
               }`}>
@@ -39,47 +51,53 @@ const NavBar = () => {
               {isAuthenticated && (
                 <>
                   <Link href="/dashboard" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    router.pathname === '/dashboard' 
+                    pathname === '/dashboard' 
                       ? 'text-indigo-600 dark:text-indigo-400' 
                       : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
                   }`}>
                     Dashboard
                   </Link>
-                  <Link href="/profile" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    router.pathname === '/profile' 
-                      ? 'text-indigo-600 dark:text-indigo-400' 
-                      : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
-                  }`}>
-                    {t('profile')}
-                  </Link>
                 </>
               )}
-              
+
               <Link href="/about" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                router.pathname === '/about' 
+                pathname === '/about' 
                   ? 'text-indigo-600 dark:text-indigo-400' 
                   : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
               }`}>
                 {t('about')}
               </Link>
             </nav>
-            
+
             <DarkModeToggle />
             <div className="mx-2"></div>
             <LanguageSwitcher />
-            
+
+            {isAuthenticated && (
+              <>
+                <div className="mx-2"></div>
+                <Notification />
+              </>
+            )}
+
             <div className="ml-4 flex items-center">
               {isAuthenticated ? (
                 <>
-                  {user?.profilePicture && (
-                    <Link href="/profile" className="mr-2">
+                  <Link href="/profile" className="mr-2">
+                    {user?.profilePicture ? (
                       <img
                         src={user.profilePicture}
                         alt="Profile"
                         className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500 shadow"
                       />
-                    </Link>
-                  )}
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-indigo-500 shadow">
+                        <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path>
+                        </svg>
+                      </div>
+                    )}
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 ml-2"
@@ -90,14 +108,14 @@ const NavBar = () => {
               ) : (
                 <div className="flex space-x-2">
                   <Link href="/login" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    router.pathname === '/login' 
+                    pathname === '/login' 
                       ? 'text-white bg-indigo-600' 
                       : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
                   }`}>
                     {t('login')}
                   </Link>
                   <Link href="/register" className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    router.pathname === '/register' 
+                    pathname === '/register' 
                       ? 'text-white bg-indigo-600' 
                       : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
                   }`}>
@@ -115,7 +133,7 @@ const NavBar = () => {
 
 const Footer = () => {
   const { language, t } = useLanguage();
-  
+
   return (
     <footer className="bg-white dark:bg-dark-card shadow-inner py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,14 +149,14 @@ const Footer = () => {
                 ? 'বন্ধুদের কাছ থেকে বেনামী বার্তা পান' 
                 : 'Get anonymous messages from friends'}
             </p>
-            
+
             <div className="mt-4">
               <Link href="/about" className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors text-sm">
                 {t('about')}
               </Link>
             </div>
           </div>
-          
+
           {/* Developer Info */}
           <div className="mt-4 md:mt-0">
             <h3 className={`text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3 ${language === 'bn' ? 'font-bengali' : ''}`}>
@@ -148,7 +166,7 @@ const Footer = () => {
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
               {language === 'bn' ? 'কম্পিউটার সায়েন্স, বাংলাদেশ' : 'Computer Science, Bangladesh'}
             </p>
-            
+
             <div className="flex space-x-4 mt-3">
               <a 
                 href="https://github.com/arpondark" 
@@ -185,7 +203,7 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           {/* Contact Section */}
           <div className="mt-4 md:mt-0">
             <h3 className={`text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3 ${language === 'bn' ? 'font-bengali' : ''}`}>
@@ -197,13 +215,13 @@ const Footer = () => {
             >
               contact@barta-app.com
             </a>
-            
+
             <p className={`text-sm text-gray-600 dark:text-gray-400 mt-4 ${language === 'bn' ? 'font-bengali' : ''}`}>
               {language === 'bn' 
                 ? 'সমস্যা রিপোর্ট করতে বা সাহায্য পেতে আমাদের সাথে যোগাযোগ করুন।' 
                 : 'Contact us for bug reports or assistance.'}
             </p>
-            
+
             <div className="mt-4">
               <a 
                 href="https://github.com/arpondark" 
@@ -243,16 +261,16 @@ const LayoutContent = ({ children, title }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      
+
       <div className="min-h-screen flex flex-col">
         <NavBar />
-        
+
         <main className="flex-grow py-6">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
-        
+
         <Footer />
       </div>
     </>
