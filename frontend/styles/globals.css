@@ -38,12 +38,28 @@ body {
   .btn-primary {
     @apply px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition;
   }
-  
+
   .input-field {
     @apply w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
   }
-  
+
   .card {
     @apply bg-white dark:bg-dark-card rounded-lg shadow-md p-4;
   }
-} 
+
+  /* Toggle Switch */
+  .toggle-checkbox {
+    @apply right-0 border-2 border-gray-300 dark:border-gray-600;
+    transition: all 0.3s;
+    z-index: 1;
+  }
+
+  .toggle-checkbox:checked {
+    @apply border-indigo-500 transform translate-x-full;
+  }
+
+  .toggle-label {
+    @apply w-full h-full;
+    transition: background-color 0.3s;
+  }
+}

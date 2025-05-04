@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { MessageCard } from '../../components/CardTemplates';
+import { MessageCard, cardTemplates } from '../../components/CardTemplates';
 import MessageExport from '../../components/MessageExport';
 import { toast } from 'react-hot-toast';
 import Cookies from 'js-cookie';
@@ -18,26 +18,25 @@ interface Message {
 
 const templateOptions = [
   { id: 'default', name: 'Default' },
-  { id: 'gradient1', name: 'Gradient 1' },
-  { id: 'gradient2', name: 'Gradient 2' },
-  { id: 'gradient3', name: 'Gradient 3' },
-  { id: 'gradient4', name: 'Gradient 4' },
-  { id: 'gradient5', name: 'Gradient 5' },
-  { id: 'pattern1', name: 'Pattern 1' },
-  { id: 'pattern2', name: 'Pattern 2' },
-  { id: 'pattern3', name: 'Pattern 3' },
-  { id: 'pattern4', name: 'Pattern 4' },
-  { id: 'pattern5', name: 'Pattern 5' },
-  { id: 'special1', name: 'Special 1' },
-  { id: 'special2', name: 'Special 2' },
-  { id: 'special3', name: 'Special 3' },
-  { id: 'special4', name: 'Special 4' },
-  { id: 'special5', name: 'Special 5' },
-  { id: 'premium1', name: 'Premium 1' },
-  { id: 'premium2', name: 'Premium 2' },
-  { id: 'premium3', name: 'Premium 3' },
-  { id: 'premium4', name: 'Premium 4' },
-  { id: 'premium5', name: 'Premium 5' },
+  { id: 'gradient-purple', name: 'Purple Gradient' },
+  { id: 'gradient-blue', name: 'Blue Ocean' },
+  { id: 'sunshine', name: 'Sunshine' },
+  { id: 'dark-elegance', name: 'Dark Elegance' },
+  { id: 'nature', name: 'Nature' },
+  { id: 'pastel-pink', name: 'Pastel Pink' },
+  { id: 'vibrant-coral', name: 'Vibrant Coral' },
+  { id: 'midnight-blue', name: 'Midnight Blue' },
+  { id: 'minimalist', name: 'Minimalist' },
+  { id: 'sunset', name: 'Sunset' },
+  { id: 'neon', name: 'Neon' },
+  { id: 'sky', name: 'Sky' },
+  { id: 'vintage', name: 'Vintage' },
+  { id: 'galaxy', name: 'Galaxy' },
+  { id: 'forest', name: 'Forest' },
+  { id: 'beach', name: 'Beach' },
+  { id: 'fire', name: 'Fire' },
+  { id: 'ice', name: 'Ice' },
+  { id: 'dark-mode', name: 'Dark Mode' },
 ];
 
 export default function Dashboard() {
@@ -49,8 +48,20 @@ export default function Dashboard() {
   const [selectedTemplate, setSelectedTemplate] = useState('default');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [notificationEnabled, setNotificationEnabled] = useState(true);
+  const previousMessagesRef = useRef<Message[]>([]);
+  const notificationSoundRef = useRef<HTMLAudioElement | null>(null);
   const router = useRouter();
 
+  // Initialize notification sound
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      notificationSoundRef.current = new Audio('/notification.mp3');
+    }
+  }, []);
+
+  // Fetch messages and set up polling
   useEffect(() => {
     // Use both cookies and localStorage for session
     let token = localStorage.getItem('token') || Cookies.get('token');
@@ -70,7 +81,43 @@ export default function Dashboard() {
         const response = await axios.get('http://localhost:5000/api/messages', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
+        // Check for new messages
+        if (previousMessagesRef.current.length > 0) {
+          const newMessages = response.data.filter(
+            (newMsg: Message) => !previousMessagesRef.current.some(
+              (oldMsg: Message) => oldMsg._id === newMsg._id
+            )
+          );
+
+          // Show notifications for new messages
+          if (newMessages.length > 0 && notificationEnabled) {
+            newMessages.forEach((msg: Message) => {
+              toast.success(
+                <div onClick={() => setSelectedMessage(msg)} className="cursor-pointer">
+                  <div>You received a new message!</div>
+                  <div className="text-xs mt-1">Click to view with selected card style</div>
+                </div>, 
+                {
+                  duration: 5000,
+                  icon: '📩',
+                }
+              );
+            });
+
+            // Play notification sound
+            if (notificationSoundRef.current) {
+              notificationSoundRef.current.play().catch(err => {
+                console.error('Error playing notification sound:', err);
+              });
+            }
+          }
+        }
+
+        // Update messages and reference
         setMessages(response.data);
+        previousMessagesRef.current = response.data;
+
         // Mark unread messages as read
         const unreadMessageIds = response.data
           .filter((msg: Message) => !msg.read)
@@ -87,8 +134,16 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
+
+    // Initial fetch
     fetchMessages();
-  }, [router]);
+
+    // Set up polling every 30 seconds
+    const intervalId = setInterval(fetchMessages, 30000);
+
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, [router, notificationEnabled]);
 
   const handleCopyLink = () => {
     const username = localStorage.getItem('username') || Cookies.get('username');
@@ -144,6 +199,63 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* Header with Notification Toggle and Logout Button */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold dark:text-dark-text">Dashboard</h1>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <button 
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
+              onClick={() => {
+                // Show a toast with unread messages count
+                const unreadCount = messages.filter(msg => !msg.read).length;
+                if (unreadCount > 0) {
+                  toast.success(`You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}!`);
+                } else {
+                  toast.success('No new messages');
+                }
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {messages.filter(msg => !msg.read).length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {messages.filter(msg => !msg.read).length}
+                </span>
+              )}
+            </button>
+          </div>
+          <div className="flex items-center">
+            <label htmlFor="notification-toggle" className="mr-2 text-sm text-gray-700 dark:text-gray-300">
+              Notifications
+            </label>
+            <div className="relative inline-block w-10 mr-2 align-middle select-none">
+              <input
+                type="checkbox"
+                id="notification-toggle"
+                name="notification-toggle"
+                checked={notificationEnabled}
+                onChange={() => setNotificationEnabled(!notificationEnabled)}
+                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+              />
+              <label
+                htmlFor="notification-toggle"
+                className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${
+                  notificationEnabled ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-gray-700'
+                }`}
+              ></label>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
       {/* What's New Section */}
       {showWhatsNew && (
         <div className="mb-8 p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg text-white relative animate-fade-in">
@@ -156,6 +268,7 @@ export default function Dashboard() {
           </button>
           <h2 className="text-2xl font-bold mb-2">🚀 What's New</h2>
           <ul className="list-disc pl-6 space-y-1 text-lg">
+            <li><b>Real-time Notifications:</b> Get instant notifications with sound when you receive new messages!</li>
             <li><b>20+ Stylish Card Templates:</b> Choose from a variety of beautiful card designs for your messages.</li>
             <li><b>Card Preview & Selection:</b> Instantly preview and select your favorite card style before sending or saving.</li>
             <li><b>Save as Image:</b> Export any message as a high-quality image with the card design.</li>
@@ -169,7 +282,7 @@ export default function Dashboard() {
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Card Style</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {templateOptions.map((template) => (
+          {cardTemplates.map((template) => (
             <button
               key={template.id}
               onClick={() => setSelectedTemplate(template.id)}
@@ -192,66 +305,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Received Messages */}
-      <div className="space-y-8">
-        {messages.length === 0 ? (
-          <div className="card dark:bg-dark-card dark:border dark:border-dark-border text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">No messages yet. Share your link to get some!</p>
-          </div>
-        ) : (
-          messages.map((message) => (
-            <div
-              key={message._id}
-              className={`card dark:bg-dark-card dark:border dark:border-dark-border p-6 ${!message.read ? 'border-l-4 border-l-primary' : ''}`}
-            >
-              <div className="flex flex-col md:flex-row md:items-center">
-                {/* Message content */}
-                <div className="relative w-full md:w-3/4" style={{ 
-                  aspectRatio: '16/9',
-                  maxWidth: '100%'
-                }}>
-                  <div className="absolute inset-0">
-                    <MessageCard
-                      message={message.content}
-                      templateId={message.cardTemplate || selectedTemplate}
-                      className="w-full h-full"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.2rem',
-                        fontWeight: 500,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Message details and actions */}
-                <div className="md:w-1/4 md:pl-4 mt-4 md:mt-0 flex flex-col justify-between">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {new Date(message.createdAt).toLocaleString()}
-                  </p>
-                  
-                  <MessageExport message={message} templateId={message.cardTemplate || selectedTemplate} />
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {/* Link with selected template */}
+      {/* Link with selected template - Moved here after template selector */}
       <div className="card dark:bg-dark-card dark:border dark:border-dark-border mb-8">
         <h3 className="text-xl font-semibold mb-4 dark:text-dark-text">Your Anonymous Link</h3>
         <div className="flex">
@@ -272,6 +326,135 @@ export default function Dashboard() {
           Share this link with your friends to receive anonymous messages with your selected card style.
         </p>
       </div>
+
+      {/* Received Messages */}
+      <div className="space-y-8">
+        {messages.length === 0 ? (
+          <div className="card dark:bg-dark-card dark:border dark:border-dark-border text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400">No messages yet. Share your link to get some!</p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message._id}
+              className={`card dark:bg-dark-card dark:border dark:border-dark-border p-6 ${!message.read ? 'border-l-4 border-l-primary' : ''} cursor-pointer hover:shadow-lg transition-shadow`}
+              onClick={() => setSelectedMessage(message)}
+            >
+              <div className="flex flex-col md:flex-row md:items-center">
+                {/* Message content - Condensed preview */}
+                <div className="relative w-full md:w-3/4" style={{ 
+                  aspectRatio: '16/9',
+                  maxWidth: '100%',
+                  maxHeight: '150px',
+                  overflow: 'hidden'
+                }}>
+                  <div className="absolute inset-0">
+                    <MessageCard
+                      message={message.content.length > 100 ? message.content.substring(0, 100) + '...' : message.content}
+                      templateId={message.cardTemplate || 'default'}
+                      className="w-full h-full"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.1rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Message details and actions */}
+                <div className="md:w-1/4 md:pl-4 mt-4 md:mt-0 flex flex-col justify-between">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {new Date(message.createdAt).toLocaleString()}
+                  </p>
+
+                  <button 
+                    className="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMessage(message);
+                    }}
+                  >
+                    View Full Message
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Message Popup */}
+      {selectedMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-card rounded-lg p-6 max-w-3xl w-full relative">
+            <button 
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+              onClick={() => setSelectedMessage(null)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">Message</h3>
+
+            <div className="mb-6">
+              <div className="relative" style={{ aspectRatio: '16/9' }}>
+                <MessageCard
+                  message={selectedMessage.content}
+                  templateId={selectedMessage.cardTemplate || 'default'}
+                  className="w-full h-full"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  publicView={true}
+                  showEmoji={true}
+                />
+                {/* Debug info - remove in production */}
+                <div className="absolute bottom-0 right-0 text-xs text-gray-500 bg-white bg-opacity-70 px-1 rounded">
+                  Template: {selectedMessage.cardTemplate || selectedTemplate}
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Received: {new Date(selectedMessage.createdAt).toLocaleString()}
+              </p>
+            </div>
+
+            <div className="flex justify-end">
+              <MessageExport 
+                message={selectedMessage} 
+                templateId={selectedMessage.cardTemplate || 'default'} 
+              />
+              <span className="ml-2 text-xs text-gray-500 self-center">
+                Using template: {selectedMessage.cardTemplate || 'default'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
     </div>
   );
 } 

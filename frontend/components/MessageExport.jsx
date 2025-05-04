@@ -15,24 +15,39 @@ const MessageExport = ({ message, templateId }) => {
   const [aspect, setAspect] = useState(aspectRatios[0].value);
   const [showExportOptions, setShowExportOptions] = useState(false);
 
+  // Ensure we have a valid templateId
+  const effectiveTemplateId = templateId || (message && message.cardTemplate) || 'default';
+
+  // Debug log to check template being used
+  console.log('MessageExport using template:', {
+    providedTemplateId: templateId,
+    messageCardTemplate: message && message.cardTemplate,
+    effectiveTemplateId
+  });
+
   const downloadAsImage = async () => {
     if (!messageCardRef.current) return;
     try {
+      // Log template information for debugging
+      console.log('Exporting message with template:', effectiveTemplateId);
+
       const messageElement = messageCardRef.current;
       messageElement.classList.add('export-rendering');
-      
+
       // Get computed dimensions to ensure fixed size
       const computedStyle = window.getComputedStyle(messageElement);
       const width = parseInt(computedStyle.width);
       const height = parseInt(computedStyle.height);
-      
+
       const canvas = await html2canvas(messageElement, {
         backgroundColor: null,
         scale: 3, // Higher quality
         logging: false,
         useCORS: true,
         width: width,
-        height: height
+        height: height,
+        allowTaint: true,
+        foreignObjectRendering: true
       });
       messageElement.classList.remove('export-rendering');
       const image = canvas.toDataURL('image/png');
@@ -42,7 +57,7 @@ const MessageExport = ({ message, templateId }) => {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
+
       // Hide export options after download
       setShowExportOptions(false);
     } catch (error) {
@@ -78,9 +93,9 @@ const MessageExport = ({ message, templateId }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            
+
             <h3 className="text-lg font-semibold mb-4 dark:text-gray-200">{t('exportImage') || 'Export Image'}</h3>
-            
+
             <div className="flex items-center mb-4 gap-2">
               <span className="text-sm text-gray-500">{t('chooseCardRatio') || 'Aspect Ratio'}:</span>
               {aspectRatios.map((r) => (
@@ -93,7 +108,7 @@ const MessageExport = ({ message, templateId }) => {
                 </button>
               ))}
             </div>
-            
+
             {/* Fixed container - prevents layout shifts */}
             <div className="relative mx-auto" style={{ 
               width: `${width}px`, 
@@ -104,7 +119,7 @@ const MessageExport = ({ message, templateId }) => {
               {/* Inner container with fixed dimensions */}
               <div 
                 ref={messageCardRef}
-                className="absolute top-0 left-0 right-0 bottom-0"
+                className="absolute top-0 left-0 right-0 bottom-0 export-container"
                 style={{ 
                   width: `${width}px`, 
                   height: `${height}px`
@@ -112,7 +127,7 @@ const MessageExport = ({ message, templateId }) => {
               >
                 <MessageCard
                   message={message.content}
-                  templateId={templateId || message.cardTemplate || 'default'}
+                  templateId={effectiveTemplateId}
                   className="w-full h-full"
                   style={{ 
                     position: 'absolute', 
@@ -125,11 +140,19 @@ const MessageExport = ({ message, templateId }) => {
                     justifyContent: 'center'
                   }}
                   publicView={true}
+                  showEmoji={true}
                 />
-                <div className="absolute bottom-2 right-4 text-xs text-gray-200 z-10" style={{textShadow:'0 2px 8px rgba(0,0,0,0.18)'}}>বার্তা</div>
+                {/* Website logo/title with color */}
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center z-10">
+                  <div className="px-3 py-1 rounded-full text-sm font-bold flex items-center shadow-lg">
+                    <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
+                      বার্তা
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            
+
             <div className="mt-4 flex justify-end">
               <button
                 onClick={downloadAsImage}

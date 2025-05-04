@@ -63,26 +63,25 @@ const MessageList = () => {
 
   const templateOptions = [
     { id: 'default', name: 'Default' },
-    { id: 'gradient1', name: 'Gradient 1' },
-    { id: 'gradient2', name: 'Gradient 2' },
-    { id: 'gradient3', name: 'Gradient 3' },
-    { id: 'gradient4', name: 'Gradient 4' },
-    { id: 'gradient5', name: 'Gradient 5' },
-    { id: 'pattern1', name: 'Pattern 1' },
-    { id: 'pattern2', name: 'Pattern 2' },
-    { id: 'pattern3', name: 'Pattern 3' },
-    { id: 'pattern4', name: 'Pattern 4' },
-    { id: 'pattern5', name: 'Pattern 5' },
-    { id: 'special1', name: 'Special 1' },
-    { id: 'special2', name: 'Special 2' },
-    { id: 'special3', name: 'Special 3' },
-    { id: 'special4', name: 'Special 4' },
-    { id: 'special5', name: 'Special 5' },
-    { id: 'premium1', name: 'Premium 1' },
-    { id: 'premium2', name: 'Premium 2' },
-    { id: 'premium3', name: 'Premium 3' },
-    { id: 'premium4', name: 'Premium 4' },
-    { id: 'premium5', name: 'Premium 5' },
+    { id: 'gradient-purple', name: 'Purple Gradient' },
+    { id: 'gradient-blue', name: 'Blue Ocean' },
+    { id: 'sunshine', name: 'Sunshine' },
+    { id: 'dark-elegance', name: 'Dark Elegance' },
+    { id: 'nature', name: 'Nature' },
+    { id: 'pastel-pink', name: 'Pastel Pink' },
+    { id: 'vibrant-coral', name: 'Vibrant Coral' },
+    { id: 'midnight-blue', name: 'Midnight Blue' },
+    { id: 'minimalist', name: 'Minimalist' },
+    { id: 'sunset', name: 'Sunset' },
+    { id: 'neon', name: 'Neon' },
+    { id: 'sky', name: 'Sky' },
+    { id: 'vintage', name: 'Vintage' },
+    { id: 'galaxy', name: 'Galaxy' },
+    { id: 'forest', name: 'Forest' },
+    { id: 'beach', name: 'Beach' },
+    { id: 'fire', name: 'Fire' },
+    { id: 'ice', name: 'Ice' },
+    { id: 'dark-mode', name: 'Dark Mode' },
   ];
 
   if (loading) {
@@ -146,7 +145,7 @@ const MessageList = () => {
               message={message.content} 
               templateId={message.cardTemplate || selectedTemplate} 
             />
-            
+
             <div className="flex justify-between items-center mt-4 text-sm text-gray-500 dark:text-gray-400">
               <span>{format(new Date(message.createdAt), 'MMM d, yyyy - h:mm a')}</span>
               <div className="flex gap-3">
@@ -175,7 +174,7 @@ const MessageList = () => {
               </div>
             </div>
           </div>
-          
+
           {selectedMessage && selectedMessage._id === message._id && (
             <div className="border-t border-gray-100 dark:border-gray-700">
               <MessageExport message={message} templateId={message.cardTemplate || selectedTemplate} />

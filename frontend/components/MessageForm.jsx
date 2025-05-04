@@ -44,14 +44,14 @@ const MessageForm = ({ username }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!message.trim()) {
       toast.error(language === 'bn' ? 'অনুগ্রহ করে একটি বার্তা লিখুন' : 'Please enter a message');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -64,7 +64,7 @@ const MessageForm = ({ username }) => {
           cardTemplate: selectedTemplate,
         }),
       });
-      
+
       if (response.ok) {
         setSubmitted(true);
         toast.success(language === 'bn' ? 'বার্তা সফলভাবে পাঠানো হয়েছে!' : 'Message sent successfully!');
@@ -82,26 +82,25 @@ const MessageForm = ({ username }) => {
 
   const templateOptions = [
     { id: 'default', name: 'Default' },
-    { id: 'gradient1', name: 'Gradient 1' },
-    { id: 'gradient2', name: 'Gradient 2' },
-    { id: 'gradient3', name: 'Gradient 3' },
-    { id: 'gradient4', name: 'Gradient 4' },
-    { id: 'gradient5', name: 'Gradient 5' },
-    { id: 'pattern1', name: 'Pattern 1' },
-    { id: 'pattern2', name: 'Pattern 2' },
-    { id: 'pattern3', name: 'Pattern 3' },
-    { id: 'pattern4', name: 'Pattern 4' },
-    { id: 'pattern5', name: 'Pattern 5' },
-    { id: 'special1', name: 'Special 1' },
-    { id: 'special2', name: 'Special 2' },
-    { id: 'special3', name: 'Special 3' },
-    { id: 'special4', name: 'Special 4' },
-    { id: 'special5', name: 'Special 5' },
-    { id: 'premium1', name: 'Premium 1' },
-    { id: 'premium2', name: 'Premium 2' },
-    { id: 'premium3', name: 'Premium 3' },
-    { id: 'premium4', name: 'Premium 4' },
-    { id: 'premium5', name: 'Premium 5' },
+    { id: 'gradient-purple', name: 'Purple Gradient' },
+    { id: 'gradient-blue', name: 'Blue Ocean' },
+    { id: 'sunshine', name: 'Sunshine' },
+    { id: 'dark-elegance', name: 'Dark Elegance' },
+    { id: 'nature', name: 'Nature' },
+    { id: 'pastel-pink', name: 'Pastel Pink' },
+    { id: 'vibrant-coral', name: 'Vibrant Coral' },
+    { id: 'midnight-blue', name: 'Midnight Blue' },
+    { id: 'minimalist', name: 'Minimalist' },
+    { id: 'sunset', name: 'Sunset' },
+    { id: 'neon', name: 'Neon' },
+    { id: 'sky', name: 'Sky' },
+    { id: 'vintage', name: 'Vintage' },
+    { id: 'galaxy', name: 'Galaxy' },
+    { id: 'forest', name: 'Forest' },
+    { id: 'beach', name: 'Beach' },
+    { id: 'fire', name: 'Fire' },
+    { id: 'ice', name: 'Ice' },
+    { id: 'dark-mode', name: 'Dark Mode' },
   ];
 
   if (submitted) {
@@ -194,7 +193,7 @@ const MessageForm = ({ username }) => {
             templateId={selectedTemplate}
             className="w-full relative"
           />
-          
+
           <textarea
             value={message}
             onChange={handleChange}
@@ -212,7 +211,7 @@ const MessageForm = ({ username }) => {
             {charCount}/{MAX_CHARS} {language === 'bn' ? 'অক্ষর' : 'characters'}
           </div>
         </div>
-        
+
         <button
           type="submit"
           disabled={isSubmitting || !message.trim()}

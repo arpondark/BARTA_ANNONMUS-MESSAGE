@@ -14,7 +14,7 @@ export default function MessageLink() {
   const params = useParams();
   const searchParams = useSearchParams();
   const username = params.username as string;
-  const templateId = searchParams.get('template') || 'gradient1';
+  const templateId = searchParams.get('template') || 'gradient-purple';
   const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +97,7 @@ export default function MessageLink() {
                       }}
                     />
                   </div>
-                  
+
                   {/* Textarea overlay */}
                   <textarea
                     className="absolute inset-0 w-full h-full p-6 border-none focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-transparent text-transparent placeholder-transparent resize-none"
@@ -113,14 +113,14 @@ export default function MessageLink() {
                     spellCheck={false}
                     autoFocus
                   />
-                  
+
                   {/* Character counter */}
                   <div className="absolute bottom-2 right-4 text-xs text-gray-200 z-10" style={{textShadow:'0 2px 8px rgba(0,0,0,0.18)'}}>
                     {message.length}/500
                   </div>
                 </div>
               </div>
-              
+
               <button
                 type="submit"
                 className="btn-primary max-w-xs w-full mx-auto block"
