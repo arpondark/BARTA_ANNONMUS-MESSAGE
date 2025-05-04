@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { MessageCard } from './CardTemplates';
 import MessageExport from './MessageExport';
 import { useLanguage } from '../context/LanguageContext';
+import Cookies from 'js-cookie';
 
 const MessageList = () => {
   const [messages, setMessages] = useState([]);
@@ -15,7 +16,10 @@ const MessageList = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('/api/messages');
+        const token = localStorage.getItem('token') || Cookies.get('token');
+        const response = await fetch('http://localhost:5000/api/messages', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (response.ok) {
           const data = await response.json();
           setMessages(data);
@@ -35,8 +39,10 @@ const MessageList = () => {
 
   const handleMarkAsRead = async (messageId) => {
     try {
-      const response = await fetch(`/api/messages/${messageId}/read`, {
+      const token = localStorage.getItem('token') || Cookies.get('token');
+      const response = await fetch(`http://localhost:5000/api/messages/${messageId}/read`, {
         method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.ok) {
@@ -50,6 +56,31 @@ const MessageList = () => {
     } catch (error) {
       console.error('Error updating message:', error);
       toast.error(language === 'bn' ? 'বার্তা আপডেট করার সময় একটি ত্রুটি ঘটেছে' : 'An error occurred while updating message');
+    }
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    if (window.confirm(language === 'bn' ? 'আপনি কি এই বার্তাটি মুছতে চান?' : 'Are you sure you want to delete this message?')) {
+      try {
+        const token = localStorage.getItem('token') || Cookies.get('token');
+        const response = await fetch(`http://localhost:5000/api/messages/${messageId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          setMessages(messages.filter(msg => msg._id !== messageId));
+          if (selectedMessage && selectedMessage._id === messageId) {
+            setSelectedMessage(null);
+          }
+          toast.success(language === 'bn' ? 'বার্তা সফলভাবে মুছে ফেলা হয়েছে' : 'Message deleted successfully');
+        } else {
+          toast.error(language === 'bn' ? 'বার্তা মুছতে ব্যর্থ হয়েছে' : 'Failed to delete message');
+        }
+      } catch (error) {
+        console.error('Error deleting message:', error);
+        toast.error(language === 'bn' ? 'বার্তা মুছে ফেলার সময় একটি ত্রুটি ঘটেছে' : 'An error occurred while deleting message');
+      }
     }
   };
 
@@ -171,6 +202,16 @@ const MessageList = () => {
                     {t('markRead')}
                   </button>
                 )}
+                <button
+                  onClick={() => handleDeleteMessage(message._id)}
+                  className="flex items-center text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                  aria-label={language === 'bn' ? 'বার্তা মুছে ফেলুন' : 'Delete message'}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  {t('delete')}
+                </button>
               </div>
             </div>
           </div>

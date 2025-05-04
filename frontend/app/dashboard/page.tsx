@@ -161,6 +161,30 @@ export default function Dashboard() {
     router.push('/login');
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    if (window.confirm('Are you sure you want to delete this message?')) {
+      try {
+        const token = localStorage.getItem('token') || Cookies.get('token');
+        const response = await axios.delete(`http://localhost:5000/api/messages/${messageId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.status === 200) {
+          setMessages(messages.filter(msg => msg._id !== messageId));
+          if (selectedMessage && selectedMessage._id === messageId) {
+            setSelectedMessage(null);
+          }
+          toast.success('Message deleted successfully');
+        } else {
+          toast.error('Failed to delete message');
+        }
+      } catch (error) {
+        console.error('Error deleting message:', error);
+        toast.error('An error occurred while deleting message');
+      }
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) {
@@ -304,6 +328,15 @@ export default function Dashboard() {
                     templateId={msg.cardTemplate || 'default'}
                   />
                 </div>
+
+                <div className="mt-2">
+                  <button
+                    onClick={() => handleDeleteMessage(msg._id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -360,6 +393,12 @@ export default function Dashboard() {
                 message={selectedMessage} 
                 templateId={selectedMessage.cardTemplate || 'default'} 
               />
+              <button 
+                onClick={() => handleDeleteMessage(selectedMessage._id)}
+                className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md"
+              >
+                Delete
+              </button>
               <span className="ml-2 text-xs text-gray-500 self-center">
                 Using template: {selectedMessage.cardTemplate || 'default'}
               </span>

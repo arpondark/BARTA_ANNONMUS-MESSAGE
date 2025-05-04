@@ -142,7 +142,7 @@ const Footer = () => {
           <div className="flex flex-col items-start">
             <Logo size="small" />
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              © {new Date().getFullYear()} বার্তা. All rights reserved.
+              © {new Date().getFullYear()} {language === 'bn' ? 'বার্তা' : 'Barta'}. {language === 'bn' ? 'সর্বস্বত্ব সংরক্ষিত' : 'All rights reserved'}.
             </p>
             <p className={`text-sm text-gray-500 dark:text-gray-400 mt-2 ${language === 'bn' ? 'font-bengali' : ''}`}>
               {language === 'bn' 
@@ -164,7 +164,7 @@ const Footer = () => {
             </h3>
             <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">MD SHAZAN MAHMUD ARPON</p>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              {language === 'bn' ? 'কম্পিউটার সায়েন্স, বাংলাদেশ' : 'Computer Science, Bangladesh'}
+              {language === 'bn' ? 'ঢাকা, বাংলাদেশ' : 'Dhaka, Bangladesh'}
             </p>
 
             <div className="flex space-x-4 mt-3">

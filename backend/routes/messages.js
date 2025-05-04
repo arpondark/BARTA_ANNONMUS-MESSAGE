@@ -57,6 +57,27 @@ router.post('/mark-read', auth, async (req, res) => {
   }
 });
 
+// Delete a message
+router.delete('/:messageId', auth, async (req, res) => {
+  try {
+    const messageId = req.params.messageId;
+    const message = await Message.findOne({ 
+      _id: messageId,
+      recipient: req.user._id
+    });
+
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+
+    await Message.findByIdAndDelete(messageId);
+    return res.json({ success: true, message: 'Message deleted successfully' });
+  } catch (error) {
+    console.error('Delete message error:', error);
+    res.status(500).json({ message: 'Failed to delete message' });
+  }
+});
+
 // Send a message to a user
 router.post('/', async (req, res) => {
   try {

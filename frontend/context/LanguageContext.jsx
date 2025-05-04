@@ -11,7 +11,7 @@ const translations = {
     register: 'Register',
     logout: 'Logout',
     about: 'About',
-    
+
     // Messages
     sendMessage: 'Send Message',
     sendAnonymousMessage: 'Send Anonymous Message',
@@ -22,7 +22,8 @@ const translations = {
     sendAnother: 'Send Another Message',
     markRead: 'Mark as Read',
     saveImage: 'Save as Image',
-    
+    delete: 'Delete',
+
     // Profile
     editProfile: 'Edit Profile',
     bio: 'Bio',
@@ -33,15 +34,15 @@ const translations = {
     copy: 'Copy',
     chooseCardTemplate: 'Choose Your Card Template',
     cardTemplateDesc: 'Select a card design that others will see when they send you messages.',
-    
+
     // Card Template
     chooseCardStyle: 'Choose Card Style',
-    
+
     // About
     aboutUs: 'About Us',
     developer: 'Developer',
     contactUs: 'Contact Us',
-    
+
     // Auth
     username: 'Username',
     password: 'Password',
@@ -79,7 +80,7 @@ const translations = {
     register: 'নিবন্ধন',
     logout: 'লগআউট',
     about: 'সম্পর্কে',
-    
+
     // Messages
     sendMessage: 'বার্তা পাঠান',
     sendAnonymousMessage: 'বেনামী বার্তা পাঠান',
@@ -90,7 +91,11 @@ const translations = {
     sendAnother: 'আরেকটি বার্তা পাঠান',
     markRead: 'পঠিত হিসেবে চিহ্নিত করুন',
     saveImage: 'ছবি হিসেবে সংরক্ষণ করুন',
-    
+    delete: 'মুছে ফেলুন',
+    typeYourMessage: 'আপনার বার্তা লিখুন..........',
+    anonymousNote: 'বেনামী বার্তা',
+    willNotKnow: 'জানবে না কে দিছে',
+
     // Profile
     editProfile: 'প্রোফাইল সম্পাদনা করুন',
     bio: 'পরিচিতি',
@@ -101,15 +106,15 @@ const translations = {
     copy: 'কপি করুন',
     chooseCardTemplate: 'আপনার কার্ড টেমপ্লেট বেছে নিন',
     cardTemplateDesc: 'একটি কার্ড ডিজাইন নির্বাচন করুন যা অন্যরা দেখবে যখন তারা আপনাকে বার্তা পাঠাবে।',
-    
+
     // Card Template
     chooseCardStyle: 'কার্ড স্টাইল নির্বাচন করুন',
-    
+
     // About
     aboutUs: 'আমাদের সম্পর্কে',
     developer: 'ডেভেলপার',
     contactUs: 'যোগাযোগ করুন',
-    
+
     // Auth
     username: 'ব্যবহারকারীর নাম',
     password: 'পাসওয়ার্ড',
@@ -145,7 +150,7 @@ const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState('en');
-  
+
   useEffect(() => {
     // Load language preference from localStorage
     const savedLanguage = localStorage.getItem('language');
@@ -153,16 +158,16 @@ export const LanguageProvider = ({ children }) => {
       setLanguage(savedLanguage);
     }
   }, []);
-  
+
   const changeLanguage = (newLanguage) => {
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
   };
-  
+
   const t = (key) => {
     return translations[language][key] || key;
   };
-  
+
   return (
     <LanguageContext.Provider value={{ language, changeLanguage, t }}>
       {children}
