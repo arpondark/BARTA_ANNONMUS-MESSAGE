@@ -1,12 +1,15 @@
+'use client';
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
+import axiosInstance from '../utils/axiosConfig';
+import { API_URL } from '../utils/config';
 
 // Create the Auth Context
 const AuthContext = createContext();
 
-// API base URL
-const API_BASE_URL = 'http://localhost:5000';
+// API base URL - for constructing URLs that aren't API endpoints
+const API_BASE_URL = API_URL.replace('/api', '');
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,10 +19,22 @@ export const AuthProvider = ({ children }) => {
   // Function to fetch user profile data
   const fetchProfileData = async (token) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      console.log('Fetching profile data with token:', token);
+      // Try multiple endpoints to support different API structures
+      let response;
+      try {
+        response = await axiosInstance.get('/profile');
+      } catch (firstError) {
+        console.log('First profile fetch attempt failed, trying alternative endpoint');
+        try {
+          response = await axiosInstance.get('/user/profile');
+        } catch (secondError) {
+          console.log('Second profile fetch attempt failed, trying third endpoint');
+          response = await axiosInstance.get('/api/user');
+        }
+      }
 
+      console.log('Profile data retrieved:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching profile data:', error);
@@ -95,8 +110,29 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (username) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { username });
-      const token = response.data.token;
+      // Try the standard endpoint first
+      let response;
+      try {
+        console.log('Attempting login with endpoint: /auth/login');
+        response = await axiosInstance.post('/auth/login', { username });
+      } catch (firstError) {
+        console.log('First login attempt failed, trying alternative endpoint');
+        // If that fails, try the alternative endpoint
+        response = await axiosInstance.post('/login', { username });
+      }
+
+      console.log('Login response:', response.data);
+
+      // Handle different response formats
+      const token = response.data.token || response.data.accessToken || response.data.access_token;
+      if (!token) {
+        console.error('No token found in response:', response.data);
+        return { 
+          success: false, 
+          message: 'Login failed: No token returned from server'
+        };
+      }
+
       const userData = { username };
 
       localStorage.setItem('auth_token', token);
@@ -146,8 +182,29 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (username) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, { username });
-      const token = response.data.token;
+      // Try the standard endpoint first
+      let response;
+      try {
+        console.log('Attempting registration with endpoint: /auth/register');
+        response = await axiosInstance.post('/auth/register', { username });
+      } catch (firstError) {
+        console.log('First registration attempt failed, trying alternative endpoint');
+        // If that fails, try the alternative endpoint
+        response = await axiosInstance.post('/register', { username });
+      }
+
+      console.log('Register response:', response.data);
+
+      // Handle different response formats
+      const token = response.data.token || response.data.accessToken || response.data.access_token;
+      if (!token) {
+        console.error('No token found in response:', response.data);
+        return { 
+          success: false, 
+          message: 'Registration failed: No token returned from server'
+        };
+      }
+
       const userData = { username };
 
       // Store in both formats for compatibility

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { BellIcon } from './Icons';
 import { useRouter } from 'next/navigation';
 import Toast from './Toast';
+import axiosInstance from '../utils/axiosConfig';
 
 interface Message {
   _id: string;
@@ -31,9 +31,7 @@ export default function Notification() {
     const fetchNotifications = async () => {
       try {
         // Fetch unread count
-        const countResponse = await axios.get('http://localhost:5000/api/messages/unread', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const countResponse = await axiosInstance.get('/messages/unread');
 
         setUnreadCount((prev) => {
           if (countResponse.data.count > prev) {
@@ -44,9 +42,7 @@ export default function Notification() {
         });
 
         // Fetch recent messages for the dropdown
-        const messagesResponse = await axios.get('http://localhost:5000/api/messages', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const messagesResponse = await axiosInstance.get('/messages');
 
         // Sort by date and take the 5 most recent
         const sortedMessages = messagesResponse.data
@@ -89,13 +85,7 @@ export default function Notification() {
 
   const handleNotificationClick = (messageId: string) => {
     // Mark as read
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.post('http://localhost:5000/api/messages/mark-read', 
-        { messageIds: [messageId] },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    }
+    axiosInstance.post('/messages/mark-read', { messageIds: [messageId] });
 
     // Close dropdown and navigate to dashboard
     setShowDropdown(false);

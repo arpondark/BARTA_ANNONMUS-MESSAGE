@@ -2,8 +2,9 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { CameraIcon } from '@/components/Icons';
+import { CameraIcon } from '../../components/Icons';
+import axiosInstance from '../../utils/axiosConfig.js';
+import { API_URL } from '../../utils/config.js';
 
 interface Profile {
   id: string;
@@ -26,7 +27,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       router.push('/login');
       return;
@@ -34,10 +35,8 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
+        const response = await axiosInstance.get('/profile');
+
         setProfile(response.data);
         setBio(response.data.bio || '');
         setAllowNotifications(response.data.allowNotifications);
@@ -54,17 +53,10 @@ export default function ProfilePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    const token = localStorage.getItem('token');
-    if (!token) return;
 
     try {
-      const response = await axios.put(
-        'http://localhost:5000/api/profile',
-        { bio, allowNotifications },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
+      const response = await axiosInstance.put('/profile', { bio, allowNotifications });
+
       setProfile(response.data);
       alert('Profile updated successfully!');
     } catch (err: any) {
@@ -80,9 +72,6 @@ export default function ProfilePage() {
 
   const handleUpload = async () => {
     if (!selectedFile) return;
-    
-    const token = localStorage.getItem('token');
-    if (!token) return;
 
     setUploadingPhoto(true);
     setError('');
@@ -91,28 +80,23 @@ export default function ProfilePage() {
     formData.append('profilePicture', selectedFile);
 
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/profile/upload-photo',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+      const response = await axiosInstance.post('/profile/upload-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
-      
+      });
+
       setProfile({
         ...profile!,
         profilePicture: response.data.profilePicture
       });
-      
+
       setSelectedFile(null);
-      
+
       // Clear the file input
       const fileInput = document.getElementById('profilePicture') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
-      
+
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to upload profile picture');
     } finally {
@@ -140,7 +124,7 @@ export default function ProfilePage() {
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
               {profile?.profilePicture ? (
                 <img 
-                  src={`http://localhost:5000${profile.profilePicture}`} 
+                  src={`${API_URL.replace('/api', '')}${profile.profilePicture}`} 
                   alt={profile.username}
                   className="w-full h-full object-cover"
                 />
@@ -164,7 +148,7 @@ export default function ProfilePage() {
               onChange={handleFileChange}
             />
           </div>
-          
+
           <div>
             <h3 className="text-xl font-semibold dark:text-dark-text">{profile?.username}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -233,4 +217,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-} 
+}

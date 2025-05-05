@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams, useSearchParams } from 'next/navigation';
 import { MessageCard, cardTemplates } from '../../../components/CardTemplates';
 import { useLanguage } from '../../../context/LanguageContext';
+import axiosInstance from '../../../utils/axiosConfig';
 
 export default function MessageLink() {
   const [message, setMessage] = useState('');
@@ -24,7 +24,7 @@ export default function MessageLink() {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:5000/api/messages', {
+      await axiosInstance.post('/messages', {
         username,
         content: message,
         cardTemplate: selectedTemplate

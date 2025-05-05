@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { MessageCard, cardTemplates } from '../../components/CardTemplates';
 import MessageExport from '../../components/MessageExport';
 import { toast } from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import { API_URL } from '../../utils/config';
+import axiosInstance from '../../utils/axiosConfig';
 
 interface Message {
   _id: string;
@@ -55,13 +56,9 @@ export default function Dashboard() {
     Cookies.set('token', token);
     Cookies.set('username', username);
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/messages`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axiosInstance.get('/messages');
 
         // Check for new messages
         if (previousMessagesRef.current.length > 0) {
@@ -104,10 +101,7 @@ export default function Dashboard() {
           .filter((msg: Message) => !msg.read)
           .map((msg: Message) => msg._id);
         if (unreadMessageIds.length > 0) {
-          await axios.post(`${apiUrl}/messages/mark-read`, 
-            { messageIds: unreadMessageIds },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+          await axiosInstance.post('/messages/mark-read', { messageIds: unreadMessageIds });
         }
         setLoading(false);
       } catch (err) {
@@ -145,11 +139,7 @@ export default function Dashboard() {
   const handleDeleteMessage = async (messageId: string) => {
     if (window.confirm('Are you sure you want to delete this message?')) {
       try {
-        const token = localStorage.getItem('token') || Cookies.get('token');
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const response = await axios.delete(`${apiUrl}/messages/${messageId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axiosInstance.delete(`/messages/${messageId}`);
 
         if (response.status === 200) {
           setMessages(messages.filter(msg => msg._id !== messageId));
@@ -175,15 +165,11 @@ export default function Dashboard() {
     }
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token') || Cookies.get('token');
       const username = localStorage.getItem('username') || Cookies.get('username');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const response = await axios.post(`${apiUrl}/messages`, {
+      const response = await axiosInstance.post('/messages', {
         recipient: username,
         content: message,
         cardTemplate: selectedTemplate,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       if (response.status === 200 || response.status === 201) {
         toast.success('Message sent successfully!');

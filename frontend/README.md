@@ -56,12 +56,14 @@ The application uses environment variables for configuration. Create a `.env.loc
 
 ```
 # API Configuration - Required
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=https://backend-for-barta.vercel.app/api
 
 # Optional Configuration
 NEXT_PUBLIC_ENABLE_ANALYTICS=false
 NEXT_PUBLIC_DEBUG_MODE=false
 ```
+
+All environment variables are centralized in the `utils/config.js` file, making it easy to maintain and update application settings.
 
 ### Environment Variables
 

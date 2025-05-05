@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { UserIcon } from './Icons';
+import { API_URL } from '../utils/config';
+import axiosInstance from '../utils/axiosConfig';
 
 export default function ProfileAvatar() {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
@@ -10,12 +12,13 @@ export default function ProfileAvatar() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    fetch('http://localhost:5000/api/profile', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setProfilePicture(data.profilePicture || null);
+    
+    axiosInstance.get('/profile')
+      .then((res) => {
+        setProfilePicture(res.data.profilePicture || null);
+      })
+      .catch(error => {
+        console.error('Error fetching profile:', error);
       });
   }, []);
 
@@ -27,7 +30,7 @@ export default function ProfileAvatar() {
     >
       {profilePicture ? (
         <img
-          src={`http://localhost:5000${profilePicture}`}
+          src={`${API_URL.replace('/api', '')}${profilePicture}`}
           alt="Profile"
           className="h-8 w-8 rounded-full object-cover border border-gray-300 dark:border-dark-border"
         />

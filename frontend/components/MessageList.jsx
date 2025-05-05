@@ -5,6 +5,7 @@ import { MessageCard } from './CardTemplates';
 import MessageExport from './MessageExport';
 import { useLanguage } from '../context/LanguageContext';
 import Cookies from 'js-cookie';
+import axiosInstance from '../utils/axiosConfig';
 
 const MessageList = () => {
   const [messages, setMessages] = useState([]);
@@ -16,16 +17,8 @@ const MessageList = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const token = localStorage.getItem('token') || Cookies.get('token');
-        const response = await fetch('http://localhost:5000/api/messages', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setMessages(data);
-        } else {
-          toast.error(language === 'bn' ? 'বার্তা লোড করতে ব্যর্থ হয়েছে' : 'Failed to load messages');
-        }
+        const response = await axiosInstance.get('/messages');
+        setMessages(response.data);
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast.error(language === 'bn' ? 'বার্তা লোড করার সময় একটি ত্রুটি ঘটেছে' : 'An error occurred while loading messages');
@@ -39,13 +32,9 @@ const MessageList = () => {
 
   const handleMarkAsRead = async (messageId) => {
     try {
-      const token = localStorage.getItem('token') || Cookies.get('token');
-      const response = await fetch(`http://localhost:5000/api/messages/${messageId}/read`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axiosInstance.put(`/messages/${messageId}/read`);
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessages(messages.map(msg => 
           msg._id === messageId ? { ...msg, isRead: true } : msg
         ));
@@ -62,13 +51,9 @@ const MessageList = () => {
   const handleDeleteMessage = async (messageId) => {
     if (window.confirm(language === 'bn' ? 'আপনি কি এই বার্তাটি মুছতে চান?' : 'Are you sure you want to delete this message?')) {
       try {
-        const token = localStorage.getItem('token') || Cookies.get('token');
-        const response = await fetch(`http://localhost:5000/api/messages/${messageId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axiosInstance.delete(`/messages/${messageId}`);
 
-        if (response.ok) {
+        if (response.status === 200) {
           setMessages(messages.filter(msg => msg._id !== messageId));
           if (selectedMessage && selectedMessage._id === messageId) {
             setSelectedMessage(null);
