@@ -1,4 +1,5 @@
 # Barta
+[🔗 Live Preview](https://bartatest.netlify.app/)
 
 A full-stack web application similar to NGL (Not Gonna Lie) that allows users to:
 - Create accounts with just a username
