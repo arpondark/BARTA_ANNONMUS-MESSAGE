@@ -16,7 +16,7 @@ A full-stack web application similar to NGL (Not Gonna Lie) that allows users to
 ## Project Structure
 
 ```
-ngl-clone/
+BARTA_ANNONMUS-MESSAGE/
 ├── frontend/       # Next.js frontend
 ├── backend/        # Express.js backend
 ```
@@ -27,7 +27,7 @@ ngl-clone/
 
 1. Navigate to the backend directory:
    ```
-   cd ngl-clone/backend
+   cd BARTA_ANNONMUS-MESSAGEbackend
    ```
 
 2. Install dependencies:
@@ -38,7 +38,7 @@ ngl-clone/
 3. Create a `.env` file with the following content:
    ```
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/ngl-clone
+   MONGODB_URI=mongodb://localhost:27017/barta app
    JWT_SECRET=your_jwt_secret_key_change_in_production
    ```
 
@@ -53,7 +53,7 @@ ngl-clone/
 
 1. Navigate to the frontend directory:
    ```
-   cd ngl-clone/frontend
+   cd BARTA_ANNONMUS-MESSAGE/frontend
    ```
 
 2. Install dependencies:
